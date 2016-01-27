@@ -1,6 +1,7 @@
 #include <citrus/app.hpp>
 #include <citrus/core.hpp>
 #include <citrus/fs.hpp>
+#include <citrus/hid.hpp>
 
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +9,13 @@
 #include <inttypes.h>
 
 #include <3ds.h>
+
+bool onProgress(u64 pos, u64 size){       
+        printf("pos: %" PRId32 "-%" PRId32 "\n", (u32)pos, (u32)size);
+        gfxFlushBuffers();
+        ctr::hid::poll();
+        return !ctr::hid::pressed(ctr::hid::BUTTON_B);
+}
 
 Result http_download(httpcContext *context)//This error handling needs updated with proper text printing once ctrulib itself supports that.
 {
@@ -50,7 +58,7 @@ Result http_download(httpcContext *context)//This error handling needs updated w
                 free(obuf);
         }
 
-      ctr::app::webinstall(ctr::fs::SD, context, NULL);
+      ctr::app::webinstall(ctr::fs::SD, context, &onProgress);
 
 //    while (true){
 //        ret=httpcGetDownloadSizeState(context, &downloadsize, &contentsize);
