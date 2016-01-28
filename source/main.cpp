@@ -58,7 +58,7 @@ Result http_download(httpcContext *context)//This error handling needs updated w
                 free(obuf);
         }
 
-      ctr::app::webinstall(ctr::fs::SD, context, &onProgress);
+      ctr::app::install(ctr::fs::SD, context, &onProgress);
 
 //    while (true){
 //        ret=httpcGetDownloadSizeState(context, &downloadsize, &contentsize);
