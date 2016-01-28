@@ -1,2 +1,2 @@
-# kShop
-Automated 3DS CIA installer/manager that operates from a web backend
+# Web-Updater
+Automated 3DS CIA installer/updater that operates from a web backend
