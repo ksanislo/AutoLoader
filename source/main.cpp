@@ -58,41 +58,7 @@ Result http_download(httpcContext *context)//This error handling needs updated w
                 free(obuf);
         }
 
-      ctr::app::install(ctr::fs::SD, context, &onProgress);
-
-//    while (true){
-//        ret=httpcGetDownloadSizeState(context, &downloadsize, &contentsize);
-//        if(ret!=0)return ret;
-//
-//        printf("dlsize: %"PRId32"\n",downloadsize);
-//        gfxFlushBuffers();
-//
-//        if(contentsize == downloadsize) break;
-//
-//	ret = httpcDownloadData(context, buf, buffsize, NULL);
-//	if(ret!=0)
-//	{
-//		free(buf);
-//		return ret;
-//	}
-//    }
-
-
-//	size = contentsize;
-//	if(size>(240*400*3*2))size = 240*400*3*2;
-
-//	framebuf_top = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
-//	memcpy(framebuf_top, buf, size);
-
-//	gfxFlushBuffers();
-//	gfxSwapBuffers();
-
-//	framebuf_top = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
-//	memcpy(framebuf_top, buf, size);
-
-//	gfxFlushBuffers();
-//	gfxSwapBuffers();
-//	gspWaitForVBlank();
+        ctr::app::install(ctr::fs::SD, context, &onProgress);
 
 	free(buf);
 
