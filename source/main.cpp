@@ -20,12 +20,17 @@ bool onProgress(u64 pos, u64 size){
 Result http_download(httpcContext *context)//This error handling needs updated with proper text printing once ctrulib itself supports that.
 {
 	Result ret=0;
-	//u8* framebuf_top;
 	u32 statuscode=0;
-	//u32 size=0;
         u32 contentsize=0, downloadsize=0, buffsize=262144;
 	u8 *buf;
         char *obuf;
+
+        // This is the app that will be uninstalled.
+        ctr::app::App app;
+        app.titleId = 0x000400000b198000;
+        app.mediaType = ctr::fs::SD;
+
+        printf( "potato: %" PRId64 "\n", app.titleId);
 
         // ret = httpcAddRequestHeaderField(context, (char*)"Accept-Encoding", (char*)"gzip");
 	// if(ret!=0)return ret;
@@ -58,6 +63,8 @@ Result http_download(httpcContext *context)//This error handling needs updated w
                 free(obuf);
         }
 
+        // We should check if this title exists first, but...
+        ctr::app::uninstall(app);
         ctr::app::install(ctr::fs::SD, context, &onProgress);
 
 	free(buf);
@@ -77,8 +84,7 @@ int main(int argc, char **argv)
 	consoleInit(GFX_BOTTOM,NULL);
 
 	//Change this to your own URL.
-	//char *url = (char*)"http://3ds.intherack.com/3ds_image.bin";
-	char *url = (char*)"http://3ds.intherack.com/test.cia";
+	char *url = (char*)"http://home.intherack.com/build.cia";
 
 	printf( "Downloading %s\n",url);
 	gfxFlushBuffers();
