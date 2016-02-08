@@ -9,4 +9,6 @@ endif
 #---------------------------------------------------------------------------------
 BUILD_FLAGS := -DVERSION_STRING="\"`git describe --tags --abbrev=0`\""
 
+LIBS := -lz
+
 include $(DEVKITPRO)/citrus/tools/make_base
