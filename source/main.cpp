@@ -11,7 +11,7 @@
 #include <3ds.h>
 
 bool onProgress(u64 pos, u64 size) {
-        printf("pos: %" PRId32 "-%" PRId32 "\n", (u32)pos, (u32)size);
+        printf("pos: %" PRId64 "-%" PRId64 "\n", pos, size);
         gfxFlushBuffers();
         ctr::hid::poll();
         return !ctr::hid::pressed(ctr::hid::BUTTON_B);
@@ -27,8 +27,7 @@ Result http_getinfo(char *url, ctr::app::App *app) {
 	app->titleId = 0x0000000000000000;
 
 	ret = httpcOpenContext(&context, HTTPC_METHOD_GET, url, 0);
-	printf("return from httpcOpenContext: %" PRId32 "\n",ret);
-        gfxFlushBuffers();
+        if(ret!=0)return ret;
 
         // We should /probably/ make sure Range: is supported
 	// before we try to do this, but these 8 bytes are the titleId
@@ -56,16 +55,13 @@ Result http_getinfo(char *url, ctr::app::App *app) {
 
         if(httpcGetResponseHeader(&context, (char*)"Content-Range", (char*)buf, 64)==0){
 		char *ptr = strchr((const char *)buf, 47);
-	        printf("Content-Range: %s\n", &ptr[1]);
-                gfxFlushBuffers();
 		app->size = atoll(&ptr[1]);
         }
         free(buf);
 
 
 	ret = httpcCloseContext(&context);
-	printf("return from httpcCloseContext: %" PRId32 "\n",ret);
-	gfxFlushBuffers();
+        if(ret!=0)return ret;
 
 	return 0;
 }
@@ -74,13 +70,11 @@ Result http_download(char *url, ctr::app::App *app) {
 	Result ret=0;
 	httpcContext context;
 	u32 statuscode=0;
-        u32 contentsize=0, downloadsize=0, buffsize=262144;
-	u8 *buf;
-        char *obuf;
+        u32 contentsize=0, downloadsize=0;
+	char *buf;
 
 	ret = httpcOpenContext(&context, HTTPC_METHOD_GET, url, 0);
-	printf("return from httpcOpenContext: %" PRId32 "\n",ret);
-	gfxFlushBuffers();
+        if(ret!=0)return ret;
 
         ret = httpcAddRequestHeaderField(&context, (char*)"Accept-Encoding", (char*)"gzip, deflate");
         if(ret!=0)return ret;
@@ -96,39 +90,21 @@ Result http_download(char *url, ctr::app::App *app) {
 	ret=httpcGetDownloadSizeState(&context, &downloadsize, &contentsize);
 	if(ret!=0)return ret;
 
-	buf = (u8*)malloc(buffsize);
+        buf = (char*)malloc(16);
 	if(buf==NULL)return -1;
-	memset(buf, 0, buffsize);
+	memset(buf, 0, 16);
 
-        obuf = (char*)malloc(16);
-
-	if(httpcGetResponseHeader(&context, (char*)"Content-Encoding", obuf, 16)==0){
-                printf("Content-Encoding: %s\n", obuf);
+	if(httpcGetResponseHeader(&context, (char*)"Content-Encoding", (char*)buf, 16)==0){
+                printf("Content-Encoding: %s\n", buf);
                 gfxFlushBuffers();
         }
-        free(obuf);
 
-	//u32 size=0, count=0;
-	//ret = (s32)HTTPC_RESULTCODE_DOWNLOADPENDING;
-	//while (ret==(s32)HTTPC_RESULTCODE_DOWNLOADPENDING) {
-	//	ret=httpcDownloadData(context, buf, buffsize, &size);
-	//	printf("return: 0x%lx size: %" PRId32 "\n", ret, size);
-	//	gfxFlushBuffers();
-	//	count += size;
-	//}
-	//printf("count: %lu\n", count);
-	//ret=httpcGetDownloadSizeState(context, &size, NULL);
-	//printf("size: %lu\n", size);
-
-        // We should check if this title exists first, but...
         ctr::app::install(app->mediaType, &context, app->size, &onProgress);
-
 
 	free(buf);
 
 	ret = httpcCloseContext(&context);
-	printf("return from httpcCloseContext: %" PRId32 "\n",ret);
-	gfxFlushBuffers();
+	if(ret!=0)return ret;
 
 	return ret;
 }
@@ -153,8 +129,7 @@ int main(int argc, char **argv)
 	gfxFlushBuffers();
 
 	ret = http_getinfo(url, &app);
-	printf("return from http_getinfo: %" PRId32 "\n",ret);
-	gfxFlushBuffers();
+	if(ret!=0)return ret;
 
 	if(app.titleId != 0 && ctr::app::installed(app)) { // Check if we have a titleId to remove
 		printf("Uninstalling titleId: 0x%llx\n", app.titleId);
@@ -163,8 +138,11 @@ int main(int argc, char **argv)
 	}
 
 	ret = http_download(url, &app);
-	printf("return from http_download: %" PRId32 "\n",ret);
+	if(ret!=0)return ret;
+
+	printf("titleId: 0x%llx\nInstall Finished.\nPress START to close.\n", app.titleId);
 	gfxFlushBuffers();
+
 
 	// Main loop
 	while (aptMainLoop())
