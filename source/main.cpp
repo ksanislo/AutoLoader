@@ -121,7 +121,7 @@ int main(int argc, char **argv)
 	app::App app;
 
 	//Change this to your own URL.
-	char *url = (char*)"http://home.intherack.com/build.cia";
+	char *url = (char*)"http://3ds.intherack.com/QRWebLoader.cia";
 
 	printf("Downloading %s\n",url);
 	gpu::flushBuffer();
