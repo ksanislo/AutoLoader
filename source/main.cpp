@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include <inttypes.h>
 
+// Max URL length used in qr variation
+#define QUIRC_MAX_PAYLOAD	8896
+
 using namespace ctr;
 
 bool onProgress(u64 pos, u64 size) {
@@ -40,6 +43,12 @@ Result http_getinfo(char *url, app::App *app) {
 
 	ret = httpcGetResponseStatusCode(&context, &statuscode, 0);
 	if(ret!=0)return ret;
+
+        if(statuscode==301||statuscode==302) {
+                if(httpcGetResponseHeader(&context, (char*)"Location", (char*)url, QUIRC_MAX_PAYLOAD-1)==0){
+                        return http_getinfo(url, app);
+                }       
+        } 
 
 	if(statuscode!=206)return -2; // 206 Partial Content
 
@@ -120,10 +129,12 @@ int main(int argc, char **argv)
 
 	app::App app;
 
-	//Change this to your own URL.
-	char *url = (char*)"http://3ds.intherack.com/files/QRWebLoader_0.5.0.cia";
+	char *url = (char*)malloc(QUIRC_MAX_PAYLOAD);
 
-	printf("Downloading %s\n",url);
+	// Change this to your own URL.
+	strcpy(url, "http://3ds.intherack.com/files/QRWebLoader_0.5.1.cia");
+
+	printf("Downloading %s\n", url);
 	gpu::flushBuffer();
 
 	ret = http_getinfo(url, &app);
