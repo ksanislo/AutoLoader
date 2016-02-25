@@ -9,8 +9,13 @@
 #include <stdio.h>
 #include <inttypes.h>
 
+#define AUTO_UPDATE_FILE "web-updater.url"
+// If we don't have a file, we'll use this one.
+#define DEFAULT_URL "http://3ds.intherack.com/files/web-updater_autoinstall.cia"
+
 // Max URL length used in qr variation
 #define QUIRC_MAX_PAYLOAD	8896
+
 
 using namespace ctr;
 
@@ -130,9 +135,12 @@ int main(int argc, char **argv)
 	app::App app;
 
 	char *url = (char*)malloc(QUIRC_MAX_PAYLOAD);
-
-	// Change this to your own URL.
-	strcpy(url, "http://3ds.intherack.com/files/QRWebLoader_0.5.1.cia");
+	FILE *fd = fopen(AUTO_UPDATE_FILE, "r");
+	if(fd != NULL) {
+		fread(url, sizeof(char), QUIRC_MAX_PAYLOAD - 1, fd);
+		fclose(fd);
+	} else
+		strcpy(url, DEFAULT_URL);
 
 	printf("Downloading %s\n", url);
 	gpu::flushBuffer();
@@ -148,10 +156,15 @@ int main(int argc, char **argv)
 
 	ret = http_download(url, &app);
 	if(ret!=0)return ret;
+	free(url);
 
-	printf("titleId: 0x%llx\nInstall finished.\nPress START to close.\n", app.titleId);
+	// We're done with http:C
+	httpcExit();
+
+	printf("Install finished.\nLaunching title 0x%llx.\n", app.titleId);
 	gpu::flushBuffer();
 
+	ctr::app::launch(app); // Launch what we installed.
 
 	// Main loop
 	while (core::running())
@@ -169,9 +182,7 @@ int main(int argc, char **argv)
 	}
 
 	// Exit services
-	httpcExit();
 	core::exit();
 
 	return 0;
 }
-
