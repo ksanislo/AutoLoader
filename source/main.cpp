@@ -43,6 +43,10 @@ Result http_getinfo(char *url, app::App *app) {
 	ret = httpcAddRequestHeaderField(&context, (char*)"Range", (char*)"bytes=11292-11299");
         if(ret!=0)return ret;
 
+        // This disables the SSL certificate checks.
+        ret = httpcSetSSLOpt(&context, 1<<9);
+        if(ret!=0)return ret;
+
 	ret = httpcBeginRequest(&context);
 	if(ret!=0)return ret;
 
@@ -94,6 +98,10 @@ Result http_download(char *url, app::App *app) {
         ret = httpcAddRequestHeaderField(&context, (char*)"Accept-Encoding", (char*)"gzip, deflate");
         if(ret!=0)return ret;
 
+        // This disables the SSL certificate checks.
+        ret = httpcSetSSLOpt(&context, 1<<9);
+        if(ret!=0)return ret;
+
 	ret = httpcBeginRequest(&context);
 	if(ret!=0)return ret;
 
@@ -128,7 +136,7 @@ int main(int argc, char **argv)
 	Result ret=0;
 
         core::init(argc);
-	httpcInit();
+	httpcInit(0x1000);
 
 	consoleInit(GFX_BOTTOM,NULL);
 
