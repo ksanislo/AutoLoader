@@ -102,7 +102,7 @@ Result http_getinfo(char *url, app::App *app){
 
 		free(buf);
 	} else {
-		printf("HTTP status: %lu", statuscode);
+		printf("HTTP status: %lu\n", statuscode);
 	}
 
 	stop:
@@ -157,22 +157,19 @@ Result http_download(char *url, app::App *app){
 		memset(buf, 0, 16);
 
 		ret = httpcGetResponseHeader(&context, (char*)"Content-Encoding", (char*)buf, 16);
-		if(ret!=0){
-			goto stop;
+		if(ret==0){
+			printf("Content-Encoding: %s\n", buf);
 		}
-
-		printf("Content-Encoding: %s\n", buf);
 
 		app::install(app->mediaType, &context, app->size, &onProgress);
 
 		free(buf);
 	} else {
-		printf("HTTP status: %lu", statuscode);
+		printf("HTTP status: %lu\n", statuscode);
 	}
 
 	stop:
 	ret = httpcCloseContext(&context);
-	printf("ret=%lx\n", ret);
 
 	return ret;
 }
@@ -200,6 +197,11 @@ int main(int argc, char **argv){
 
 	ret = http_getinfo(url, &app);
 	if(ret!=0)return ret;
+
+        if(app.titleId>>48 != 0x4){ // 3DS titleId
+                printf("Not a 3DS .cia file.\n");
+                return -1;
+        }
 
 	if(app.titleId != 0 && app::installed(app)){ // Check if we have a titleId to remove
 		printf("Uninstalling titleId: 0x%llx\n", app.titleId);
