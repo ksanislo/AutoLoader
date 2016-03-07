@@ -9,9 +9,9 @@
 #include <stdio.h>
 #include <inttypes.h>
 
-#define AUTO_UPDATE_FILE "web-updater.url"
+#define AUTO_UPDATE_FILE "autoloader.url"
 // If we don't have a file, we'll use this one.
-#define DEFAULT_URL "http://3ds.intherack.com/files/web-updater_autoinstall.cia"
+#define DEFAULT_URL "http://3ds.intherack.com/files/QRWebLoader.cia"
 
 #define SSLOPTION_NOVERIFY 1<<9
 
