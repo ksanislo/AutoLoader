@@ -15,7 +15,7 @@ endif
 
 # COMMON CONFIGURATION #
 
-NAME := web-updater
+NAME := AutoLoader
 
 BUILD_DIR := build
 OUTPUT_DIR := output
@@ -33,9 +33,9 @@ RUN_FLAGS :=
 # 3DS CONFIGURATION #
 
 TITLE := $(NAME)
-DESCRIPTION := Simple http:C based CIA installer/updater.
+DESCRIPTION := http:C based CIA installer/updater
 AUTHOR := ksanislo
-PRODUCT_CODE := CTR-P-WUPD
+PRODUCT_CODE := AutoLoader
 UNIQUE_ID := 0xB1982
 
 SYSTEM_MODE := 64MB
